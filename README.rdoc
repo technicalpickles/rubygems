@@ -39,3 +39,8 @@ For more details and other options, see:
 
   ruby setup.rb --help
 
+== CONTRIBUTING
+ 
+1. Fork rubygems on GitHub: http://github.com/rubygems/rubygems and click "Fork"
+2. Work on your changes in topic branch
+3. Create a new 'discussion' on RubyGems Support: http://help.rubygems.org/discussion/new
