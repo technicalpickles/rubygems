@@ -1173,7 +1173,7 @@ end
     end
   end
 
-  def test_validate_rubyforge_project
+  def test_dont_validate_rubyforge_project
     util_setup_validate
 
     Dir.chdir @tempdir do
@@ -1183,7 +1183,7 @@ end
         @a1.validate
       end
 
-      assert_equal "WARNING:  no rubyforge_project specified\n",
+      refute_equal "WARNING:  no rubyforge_project specified\n",
                    @ui.error, 'error'
     end
   end
