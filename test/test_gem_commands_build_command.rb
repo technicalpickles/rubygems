@@ -9,6 +9,7 @@ class TestGemCommandsBuildCommand < RubyGemTestCase
 
     @gem = quick_gem 'some_gem' do |s|
       s.rubyforge_project = 'example'
+      s.license = 'MIT'
     end
 
     @cmd = Gem::Commands::BuildCommand.new

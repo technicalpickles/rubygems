@@ -1232,6 +1232,20 @@ end
     end
   end
 
+  def test_validate_license
+    util_setup_validate
+
+    Dir.chdir @tempdir do
+      @a1.license = ''
+
+      use_ui @ui do
+        @a1.validate
+      end
+
+      assert_equal "WARNING:  no license specified\n", @ui.error, 'error'
+    end
+  end
+
   def test_version
     assert_equal Gem::Version.new('1'), @a1.version
   end
