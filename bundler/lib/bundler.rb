@@ -153,6 +153,10 @@ module Bundler
       # Return if all groups are already loaded
       return @setup if defined?(@setup) && @setup
 
+      if settings[:auto_install]
+        install
+      end
+
       definition.validate_runtime!
 
       SharedHelpers.print_major_deprecations!
@@ -162,6 +166,22 @@ module Bundler
         @setup = load.setup
       else
         load.setup(*groups)
+      end
+    end
+
+    def install
+      Bundler.definition.specs
+    rescue GemNotFound
+      Bundler.ui.info "Automatically installing missing gems."
+      Bundler.reset!
+
+      Bundler.settings.temporary(:no_install => false) do
+        Plugin.gemfile_install(Bundler.default_gemfile) if Bundler.feature_flag.plugins?
+
+        definition = Bundler.definition
+        definition.validate_runtime!
+
+        Installer.install(Bundler.root, definition, {})
       end
     end
 

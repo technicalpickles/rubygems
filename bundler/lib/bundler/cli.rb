@@ -804,14 +804,7 @@ module Bundler
     def auto_install
       return unless Bundler.settings[:auto_install]
 
-      begin
-        Bundler.definition.specs
-      rescue GemNotFound
-        Bundler.ui.info "Automatically installing missing gems."
-        Bundler.reset!
-        invoke :install, []
-        Bundler.reset!
-      end
+      Bundler.install
     end
 
     def current_command

@@ -5,19 +5,10 @@ require_relative "shared_helpers"
 if Bundler::SharedHelpers.in_bundle?
   require_relative "../bundler"
 
-  puts "auto_install: #{Bundler.settings[:auto_install]}"
+  # this happens in Bundler.setup too, but we call it here early
+  # so it can happen without being Bundler.ui.silence'd
   if Bundler.settings[:auto_install]
-    begin
-      Bundler.definition.specs
-    rescue Bundler::GemNotFound
-      Bundler.ui.info "Automatically installing missing gems."
-      Bundler.reset!
-      Bundler.settings.temporary(:no_install => false) do
-        require "bundler/cli"
-        require "bundler/cli/install"
-        Bundler::CLI::Install.new({}).run
-      end
-    end
+    Bundler.install
   end
 
   if STDOUT.tty? || ENV["BUNDLER_FORCE_TTY"]
