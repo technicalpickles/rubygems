@@ -7,6 +7,7 @@
 #++
 
 require_relative "../user_interaction"
+require_relative "../shellwords"
 
 class Gem::Ext::Builder
   include Gem::UserInteraction
@@ -30,13 +31,13 @@ class Gem::Ext::Builder
     make_program = Shellwords.split(make_program_name)
 
     # The installation of the bundled gems is failed when DESTDIR is empty in mswin platform.
-    destdir = /\bnmake/i !~ make_program_name || ENV["DESTDIR"] && ENV["DESTDIR"] != "" ? "DESTDIR=%s" % ENV["DESTDIR"] : ""
+    destdir = /\bnmake/i !~ make_program_name || ENV["DESTDIR"] && ENV["DESTDIR"] != "" ? format("DESTDIR=%s", ENV["DESTDIR"]) : ""
 
     env = [destdir]
 
     if sitedir
-      env << "sitearchdir=%s" % sitedir
-      env << "sitelibdir=%s" % sitedir
+      env << format("sitearchdir=%s", sitedir)
+      env << format("sitelibdir=%s", sitedir)
     end
 
     targets.each do |target|
@@ -55,9 +56,8 @@ class Gem::Ext::Builder
   end
 
   def self.ruby
-    require "shellwords"
     # Gem.ruby is quoted if it contains whitespace
-    cmd = Gem.ruby.shellsplit
+    cmd = Shellwords.split(Gem.ruby)
 
     # This load_path is only needed when running rubygems test without a proper installation.
     # Prepending it in a normal installation will cause problem with order of $LOAD_PATH.
@@ -82,8 +82,7 @@ class Gem::Ext::Builder
         p(command)
       end
       results << "current directory: #{dir}"
-      require "shellwords"
-      results << command.shelljoin
+      results << Shellwords.join(command)
 
       require "open3"
       # Set $SOURCE_DATE_EPOCH for the subprocess.

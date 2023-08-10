@@ -1071,19 +1071,27 @@ dependencies: []
   end
 
   def test_handles_private_null_type
+    yaml_defined = Object.const_defined?("YAML")
+
     path = File.expand_path "data/pry-0.4.7.gemspec.rz", __dir__
 
     data = Marshal.load Gem::Util.inflate(Gem.read_binary(path))
 
     assert_instance_of Gem::Specification, data
+
+    assert_equal(yaml_defined, Object.const_defined?("YAML"))
   end
 
   def test_handles_dependencies_with_syck_requirements_bug
+    yaml_defined = Object.const_defined?("YAML")
+
     path = File.expand_path "data/excon-0.7.7.gemspec.rz", __dir__
 
     data = Marshal.load Gem::Util.inflate(Gem.read_binary(path))
 
     assert_instance_of Gem::Specification, data
+
+    assert_equal(yaml_defined, Object.const_defined?("YAML"))
   end
 
   def test_initialize
@@ -1445,15 +1453,15 @@ dependencies: []
     end
 
     FileUtils.mkdir_p File.join @ext.base_dir, "extensions"
-    FileUtils.chmod 0555, @ext.base_dir
-    FileUtils.chmod 0555, File.join(@ext.base_dir, "extensions")
+    FileUtils.chmod 0o555, @ext.base_dir
+    FileUtils.chmod 0o555, File.join(@ext.base_dir, "extensions")
 
     @ext.build_extensions
     assert_path_not_exist @ext.extension_dir
   ensure
-    unless $DEBUG || win_platform? || Process.uid.zero? || Gem.java_platform?
-      FileUtils.chmod 0755, File.join(@ext.base_dir, "extensions")
-      FileUtils.chmod 0755, @ext.base_dir
+    unless $DEBUG || Gem.win_platform? || Process.uid.zero? || Gem.java_platform?
+      FileUtils.chmod 0o755, File.join(@ext.base_dir, "extensions")
+      FileUtils.chmod 0o755, @ext.base_dir
     end
   end
 
@@ -1478,14 +1486,14 @@ dependencies: []
     end
 
     FileUtils.rm_r File.join @gemhome, "extensions"
-    FileUtils.chmod 0555, @gemhome
+    FileUtils.chmod 0o555, @gemhome
 
     @ext.build_extensions
 
     gem_make_out = File.join @ext.extension_dir, "gem_make.out"
     assert_path_not_exist gem_make_out
   ensure
-    FileUtils.chmod 0755, @gemhome
+    FileUtils.chmod 0o755, @gemhome
   end
 
   def test_build_extensions_none
@@ -1540,7 +1548,7 @@ dependencies: []
       refute @ext.contains_requirable_file? "nonexistent"
     end
 
-    expected = "Ignoring ext-1 because its extensions are not built. " +
+    expected = "Ignoring ext-1 because its extensions are not built. " \
                "Try: gem pristine ext --version 1\n"
 
     assert_equal expected, err
@@ -1593,12 +1601,12 @@ dependencies: []
 
   def test_date_tolerates_hour_sec_zulu
     @a1.date = "2012-01-12 11:22:33.4444444 Z"
-    assert_equal Time.utc(2012,01,12,0,0,0), @a1.date
+    assert_equal Time.utc(2012,1,12,0,0,0), @a1.date
   end
 
   def test_date_tolerates_hour_sec_and_timezone
     @a1.date = "2012-01-12 11:22:33.4444444 +02:33"
-    assert_equal Time.utc(2012,01,12,0,0,0), @a1.date
+    assert_equal Time.utc(2012,1,12,0,0,0), @a1.date
   end
 
   def test_date_use_env_source_date_epoch
@@ -1840,7 +1848,7 @@ dependencies: []
   end
 
   def test_full_gem_path_double_slash
-    gemhome = @gemhome.to_s.sub(/\w\//, '\&/')
+    gemhome = @gemhome.to_s.sub(%r{\w/}, '\&/')
     @a1.loaded_from = File.join gemhome, "specifications", @a1.spec_name
 
     expected = File.join @gemhome, "gems", @a1.full_name
@@ -1858,7 +1866,7 @@ dependencies: []
     @a1.instance_variable_set :@new_platform, "mswin32"
     assert_equal "a-1-mswin32", @a1.full_name, "legacy"
 
-    return if win_platform?
+    return if Gem.win_platform?
 
     @a1 = Gem::Specification.new "a", 1
     @a1.platform = "current"
@@ -2380,7 +2388,7 @@ end
 
     expected = <<-SPEC
 # -*- encoding: utf-8 -*-
-# stub: a 1 #{win_platform? ? "x86-mswin32-60" : "x86-darwin-8"} #{stub_require_paths}
+# stub: a 1 #{Gem.win_platform? ? "x86-mswin32-60" : "x86-darwin-8"} #{stub_require_paths}
 # stub: #{extensions}
 
 Gem::Specification.new do |s|
@@ -2445,7 +2453,7 @@ end
 
     ruby = @a2.to_ruby
 
-    assert_match %r%^  s\.metadata = \{ "%, ruby
+    assert_match(/^  s\.metadata = \{ "/, ruby)
   end
 
   def test_to_ruby_platform
@@ -2462,7 +2470,7 @@ end
   def test_to_yaml
     yaml_str = @a1.to_yaml
 
-    refute_match %r{!!null}, yaml_str
+    refute_match(/!!null/, yaml_str)
 
     same_spec = Gem::Specification.from_yaml(yaml_str)
 
@@ -2483,7 +2491,7 @@ end
   def test_to_yaml_platform_empty_string
     @a1.instance_variable_set :@original_platform, ""
 
-    assert_match %r{^platform: ruby$}, @a1.to_yaml
+    assert_match(/^platform: ruby$/, @a1.to_yaml)
   end
 
   def test_to_yaml_platform_legacy
@@ -2501,7 +2509,7 @@ end
   def test_to_yaml_platform_nil
     @a1.instance_variable_set :@original_platform, nil
 
-    assert_match %r{^platform: ruby$}, @a1.to_yaml
+    assert_match(/^platform: ruby$/, @a1.to_yaml)
   end
 
   def test_validate
@@ -2897,7 +2905,7 @@ duplicate dependency on c (>= 1.2.3, development), (~> 1.2) use:
   end
 
   def test_validate_empty_require_paths
-    if win_platform?
+    if Gem.win_platform?
       pend "test_validate_empty_require_paths skipped on MS Windows (symlink)"
     else
       util_setup_validate
@@ -2913,7 +2921,7 @@ duplicate dependency on c (>= 1.2.3, development), (~> 1.2) use:
   end
 
   def test_validate_files
-    pend "test_validate_files skipped on MS Windows (symlink)" if win_platform?
+    pend "test_validate_files skipped on MS Windows (symlink)" if Gem.win_platform?
     util_setup_validate
 
     @a1.files += ["lib", "lib2"]
@@ -3306,7 +3314,7 @@ Did you mean 'Ruby'?
           spec.validate
         end
 
-        assert_match %r{^#{name}}, e.message
+        assert_match(/^#{name}/, e.message)
       end
     end
   end
@@ -3317,8 +3325,8 @@ Did you mean 'Ruby'?
     util_setup_validate
 
     Dir.chdir @tempdir do
-      File.chmod 0640, File.join("lib", "code.rb")
-      File.chmod 0640, File.join("bin", "exec")
+      File.chmod 0o640, File.join("lib", "code.rb")
+      File.chmod 0o640, File.join("bin", "exec")
 
       use_ui @ui do
         @a1.validate
@@ -3812,7 +3820,7 @@ end
         FileUtils.touch File.join("lib", "code.rb")
         FileUtils.touch File.join("test", "suite.rb")
 
-        File.open "bin/exec", "w", 0755 do |fp|
+        File.open "bin/exec", "w", 0o755 do |fp|
           fp.puts "#!#{Gem.ruby}"
         end
       ensure

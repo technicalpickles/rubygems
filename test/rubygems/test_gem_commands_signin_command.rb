@@ -24,14 +24,14 @@ class TestGemCommandsSigninCommand < Gem::TestCase
 
   def test_execute_when_not_already_signed_in
     sign_in_ui = util_capture { @cmd.execute }
-    assert_match %r{Signed in.}, sign_in_ui.output
+    assert_match(/Signed in./, sign_in_ui.output)
   end
 
   def test_execute_when_not_already_signed_in_and_not_preexisting_credentials_folder
     FileUtils.rm Gem.configuration.credentials_path
 
     sign_in_ui = util_capture { @cmd.execute }
-    assert_match %r{Signed in.}, sign_in_ui.output
+    assert_match(/Signed in./, sign_in_ui.output)
   end
 
   def test_execute_when_already_signed_in_with_same_host
@@ -64,8 +64,8 @@ class TestGemCommandsSigninCommand < Gem::TestCase
     host = "http://some-gemcutter-compatible-host.org"
 
     sign_in_ui = util_capture(nil, host) { @cmd.execute }
-    assert_match %r{Enter your #{host} credentials.}, sign_in_ui.output
-    assert_match %r{Signed in.}, sign_in_ui.output
+    assert_match(/Enter your #{host} credentials./, sign_in_ui.output)
+    assert_match(/Signed in./, sign_in_ui.output)
 
     api_key     = "a5fdbb6ba150cbb83aad2bb2fede64cf040453903"
     credentials = load_yaml_file Gem.configuration.credentials_path
@@ -109,7 +109,7 @@ class TestGemCommandsSigninCommand < Gem::TestCase
   def test_execute_with_key_name_and_scope
     email     = "you@example.com"
     password  = "secret"
-    api_key   = "1234"
+    api_key   = "1234abcd"
     fetcher   = Gem::RemoteFetcher.fetcher
 
     key_name_ui = Gem::MockGemUi.new "#{email}\n#{password}\ntest-key\n\ny\n\n\n\n\n\n"
@@ -134,7 +134,7 @@ class TestGemCommandsSigninCommand < Gem::TestCase
   def test_execute_with_key_name_scope_and_mfa_level_of_ui_only
     email     = "you@example.com"
     password  = "secret"
-    api_key   = "1234"
+    api_key   = "1234abcd"
     fetcher   = Gem::RemoteFetcher.fetcher
     mfa_level = "ui_only"
 
@@ -161,7 +161,7 @@ class TestGemCommandsSigninCommand < Gem::TestCase
   def test_execute_with_key_name_scope_and_mfa_level_of_gem_signin
     email     = "you@example.com"
     password  = "secret"
-    api_key   = "1234"
+    api_key   = "1234abcd"
     fetcher   = Gem::RemoteFetcher.fetcher
     mfa_level = "ui_and_gem_signin"
 
@@ -188,7 +188,7 @@ class TestGemCommandsSigninCommand < Gem::TestCase
   def test_execute_with_warnings
     email     = "you@example.com"
     password  = "secret"
-    api_key   = "1234"
+    api_key   = "1234abcd"
     fetcher   = Gem::RemoteFetcher.fetcher
     mfa_level = "disabled"
     warning   = "/[WARNING/] For protection of your account and gems"
@@ -204,7 +204,7 @@ class TestGemCommandsSigninCommand < Gem::TestCase
 
     email     = "you@example.com"
     password  = "secret"
-    api_key   = "1234"
+    api_key   = "1234abcd"
     fetcher   = Gem::RemoteFetcher.fetcher
 
     key_name_ui = Gem::MockGemUi.new "#{email}\n#{password}\ntest-key\n\ny\n\n\n\n\n\ny"

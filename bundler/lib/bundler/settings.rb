@@ -43,7 +43,6 @@ module Bundler
       setup_makes_kernel_gem_public
       silence_deprecations
       silence_root_warning
-      suppress_install_using_messages
       update_requires_all_flag
     ].freeze
 
@@ -75,6 +74,7 @@ module Bundler
       shebang
       system_bindir
       trust-policy
+      version
     ].freeze
 
     DEFAULT_CONFIG = {
@@ -84,6 +84,7 @@ module Bundler
       "BUNDLE_REDIRECT" => 5,
       "BUNDLE_RETRY" => 3,
       "BUNDLE_TIMEOUT" => 10,
+      "BUNDLE_VERSION" => "lockfile",
     }.freeze
 
     def initialize(root = nil)
@@ -219,7 +220,6 @@ module Bundler
     def path
       configs.each do |_level, settings|
         path = value_for("path", settings)
-        path = "vendor/bundle" if value_for("deployment", settings) && path.nil?
         path_system = value_for("path.system", settings)
         disabled_shared_gems = value_for("disable_shared_gems", settings)
         next if path.nil? && path_system.nil? && disabled_shared_gems.nil?
@@ -227,7 +227,9 @@ module Bundler
         return Path.new(path, system_path)
       end
 
-      Path.new(nil, false)
+      path = "vendor/bundle" if self[:deployment]
+
+      Path.new(path, false)
     end
 
     Path = Struct.new(:explicit_path, :system_path) do
@@ -386,8 +388,7 @@ module Bundler
       return unless file
       SharedHelpers.filesystem_access(file) do |p|
         FileUtils.mkdir_p(p.dirname)
-        require_relative "yaml_serializer"
-        p.open("w") {|f| f.write(YAMLSerializer.dump(hash)) }
+        p.open("w") {|f| f.write(serializer_class.dump(hash)) }
       end
     end
 
@@ -449,8 +450,7 @@ module Bundler
       SharedHelpers.filesystem_access(config_file, :read) do |file|
         valid_file = file.exist? && !file.size.zero?
         return {} unless valid_file
-        require_relative "yaml_serializer"
-        YAMLSerializer.load(file.read).inject({}) do |config, (k, v)|
+        serializer_class.load(file.read).inject({}) do |config, (k, v)|
           new_k = k
 
           if k.include?("-")
@@ -465,6 +465,15 @@ module Bundler
           config
         end
       end
+    end
+
+    def serializer_class
+      require "rubygems/yaml_serializer"
+      Gem::YAMLSerializer
+    rescue LoadError
+      # TODO: Remove this when RubyGems 3.4 is EOL
+      require_relative "yaml_serializer"
+      YAMLSerializer
     end
 
     PER_URI_OPTIONS = %w[

@@ -4,14 +4,79 @@ AllCops:
   DisabledByDefault: true
   TargetRubyVersion: 2.6
   Exclude:
-    - 'bundler/**/*'
-    - 'lib/rubygems/resolver/molinillo/**/*'
-    - 'lib/rubygems/tsort/**/*'
-    - 'lib/rubygems/optparse/**/*'
-    - 'pkg/**/*'
-    - 'tmp/**/*'
+    - pkg/**/*
+    - tmp/**/*
+    - bundler/tmp/**/*
+    - lib/rubygems/resolver/molinillo/**/*
+    - lib/rubygems/tsort/**/*
+    - lib/rubygems/optparse/**/*
+    - bundler/lib/bundler/vendor/**/*
   CacheRootDirectory: tmp/rubocop
   MaxFilesInCache: 5000
+
+# We disabled some cops because they are not compatible with rubygems and bundler.
+# So, We exclude rubygems files.
+
+# Naming
+
+Naming/ConstantName:
+  Enabled: true
+  Exclude:
+    - lib/**/*
+    - test/**/*
+
+Naming/MethodName:
+  Enabled: true
+  Exclude:
+    - lib/**/*
+    - test/**/*
+
+Naming/VariableName:
+  Enabled: true
+
+Naming/VariableNumber:
+  Enabled: true
+  Exclude:
+    - lib/**/*
+    - test/**/*
+    - tool/**/*
+
+# Performance
+
+Performance/RegexpMatch:
+  Enabled: true
+
+# Style
+
+Style/ClassVars:
+  Enabled: true
+  Exclude:
+    - lib/**/*
+    - test/**/*
+
+Style/FormatString:
+  Enabled: true
+
+# 1.8.7 support
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: hash_rockets
+  Exclude:
+    - Rakefile
+    - lib/**/*
+    - test/**/*
+    - tool/**/*
+
+Style/LineEndConcatenation:
+  Enabled: true
+
+Style/NumericLiteralPrefix:
+  Enabled: true
+
+Style/RegexpLiteral:
+  Enabled: true
+
+# Following cops are enabled rubygems and bundler
 
 Bundler/DuplicatedGem:
   Enabled: true
@@ -447,6 +512,9 @@ Performance/Count:
   Enabled: true
 
 Performance/Casecmp:
+  Enabled: true
+
+Performance/FlatMap:
   Enabled: true
 
 Performance/StartWith:

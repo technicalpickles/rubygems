@@ -201,7 +201,7 @@ class Gem::Version
   @@release = {}
 
   def self.new(version) # :nodoc:
-    return super unless Gem::Version == self
+    return super unless self == Gem::Version
 
     @@all[version] ||= super
   end
@@ -405,7 +405,7 @@ class Gem::Version
     # since this version object is cached in @@all, its @segments should be frozen
 
     @segments ||= @version.scan(/[0-9]+|[a-z]+/i).map do |s|
-      /^\d+$/ =~ s ? s.to_i : s
+      /^\d+$/.match?(s) ? s.to_i : s
     end.freeze
   end
 

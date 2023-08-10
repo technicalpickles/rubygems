@@ -54,7 +54,7 @@ class TestGemCommandsPristineCommand < Gem::TestCase
   end
 
   def test_execute_user_install
-    FileUtils.chmod 0555, @gemhome
+    FileUtils.chmod 0o555, @gemhome
 
     a = util_spec "a" do |s|
       s.executables = %w[foo]
@@ -99,7 +99,7 @@ class TestGemCommandsPristineCommand < Gem::TestCase
     assert_equal "Restored #{a.full_name}", out.shift
     assert_empty out, out.inspect
   ensure
-    FileUtils.chmod(0755, @gemhome)
+    FileUtils.chmod(0o755, @gemhome)
   end
 
   def test_execute_all
@@ -158,11 +158,11 @@ class TestGemCommandsPristineCommand < Gem::TestCase
 
     assert_path_exist gem_exec
 
-    ruby_exec = sprintf Gem.default_exec_format, "ruby"
+    ruby_exec = format Gem.default_exec_format, "ruby"
 
-    bin_env = win_platform? ? "" : %w[/usr/bin/env /bin/env].find {|f| File.executable?(f) } + " "
+    bin_env = Gem.win_platform? ? "" : %w[/usr/bin/env /bin/env].find {|f| File.executable?(f) } + " "
 
-    assert_match %r{\A#!\s*#{bin_env}#{ruby_exec}}, File.read(gem_exec)
+    assert_match(/\A#!\s*#{bin_env}#{ruby_exec}/, File.read(gem_exec))
   end
 
   def test_execute_extensions_explicit
@@ -504,7 +504,7 @@ class TestGemCommandsPristineCommand < Gem::TestCase
       end
     end
 
-    assert_match %r{at least one gem name}, e.message
+    assert_match(/at least one gem name/, e.message)
   end
 
   def test_execute_only_executables
@@ -546,7 +546,7 @@ class TestGemCommandsPristineCommand < Gem::TestCase
       fp.puts "puts __FILE__"
     end
     write_file File.join(@tempdir, "lib", "rubygems_plugin.rb") do |fp|
-      fp.puts "puts __FILE__"
+      fp.puts "# do nothing"
     end
     write_file File.join(@tempdir, "bin", "foo") do |fp|
       fp.puts "#!/usr/bin/ruby"

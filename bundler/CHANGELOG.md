@@ -1,3 +1,97 @@
+# 2.4.18 (August 2, 2023)
+
+## Security:
+
+  - Merge URI-0.12.2 for Bundler [#6779](https://github.com/rubygems/rubygems/pull/6779)
+
+## Enhancements:
+
+  - Update Magnus version in Rust extension gem template [#6843](https://github.com/rubygems/rubygems/pull/6843)
+
+## Documentation:
+
+  - Update bundle-outdated(1) man to use table output [#6833](https://github.com/rubygems/rubygems/pull/6833)
+
+# 2.4.17 (July 14, 2023)
+
+## Enhancements:
+
+  - Avoid printing "Using ..." messages when version has not changed [#6804](https://github.com/rubygems/rubygems/pull/6804)
+
+## Bug fixes:
+
+  - Fix `bundler/setup` unintendedly writing to the filesystem [#6814](https://github.com/rubygems/rubygems/pull/6814)
+
+# 2.4.16 (July 10, 2023)
+
+## Bug fixes:
+
+  - Exclude Bundler from missing locked dependencies check [#6792](https://github.com/rubygems/rubygems/pull/6792)
+  - Fix another incorrect removal of "ruby" platform from lockfile when changing path sources [#6784](https://github.com/rubygems/rubygems/pull/6784)
+  - Fix git source lockfile instability [#6786](https://github.com/rubygems/rubygems/pull/6786)
+
+## Documentation:
+
+  - `gemfile.5`: Code format the default glob to escape Markdown [#6790](https://github.com/rubygems/rubygems/pull/6790)
+
+# 2.4.15 (June 29, 2023)
+
+## Enhancements:
+
+  - Improve edge case error message [#6733](https://github.com/rubygems/rubygems/pull/6733)
+
+## Bug fixes:
+
+  - Fix `bundle lock --update --bundler` [#6213](https://github.com/rubygems/rubygems/pull/6213)
+
+# 2.4.14 (June 12, 2023)
+
+## Enhancements:
+
+  - Stop publishing Gemfile in default gem template [#6723](https://github.com/rubygems/rubygems/pull/6723)
+  - Avoid infinite loops when hitting resolution bugs [#6722](https://github.com/rubygems/rubygems/pull/6722)
+  - Make `LockfileParser` usable with just a lockfile [#6694](https://github.com/rubygems/rubygems/pull/6694)
+  - Always rely on `$LOAD_PATH` when jumping from `exe/` to `lib/` [#6702](https://github.com/rubygems/rubygems/pull/6702)
+  - Make `frozen` setting take precedence over `deployment` setting [#6685](https://github.com/rubygems/rubygems/pull/6685)
+  - Show an error when trying to update bundler in frozen mode [#6684](https://github.com/rubygems/rubygems/pull/6684)
+
+## Bug fixes:
+
+  - Fix `deployment` vs `path` precedence [#6703](https://github.com/rubygems/rubygems/pull/6703)
+  - Fix inline mode with multiple sources [#6699](https://github.com/rubygems/rubygems/pull/6699)
+
+# 2.4.13 (May 9, 2023)
+
+## Bug fixes:
+
+  - Fix unexpected fallbacks to full index by adding FalseClass and Time to the SafeMarshal list [#6655](https://github.com/rubygems/rubygems/pull/6655)
+
+## Documentation:
+
+  - Fix broken hyperlinks in bundle cache documentation [#6606](https://github.com/rubygems/rubygems/pull/6606)
+
+# 2.4.12 (April 11, 2023)
+
+## Enhancements:
+
+  - Remove reference to `pry` gem from generated `bin/console` file [#6515](https://github.com/rubygems/rubygems/pull/6515)
+
+# 2.4.11 (April 10, 2023)
+
+## Security:
+
+  - Use URI-0.12.1 (safe against CVE-2023-28755 ReDoS vulnerability) [#6558](https://github.com/rubygems/rubygems/pull/6558)
+
+## Enhancements:
+
+  - Remove one fallback to full indexes on big gemfiles [#6578](https://github.com/rubygems/rubygems/pull/6578)
+  - Generate native gems with `-fvisibility=hidden` [#6541](https://github.com/rubygems/rubygems/pull/6541)
+
+## Bug fixes:
+
+  - Fix resolver hangs when dealing with an incomplete lockfile [#6552](https://github.com/rubygems/rubygems/pull/6552)
+  - Fix prereleases not being considered by gem version promoter when there's no lockfile [#6537](https://github.com/rubygems/rubygems/pull/6537)
+
 # 2.4.10 (March 27, 2023)
 
 ## Bug fixes:

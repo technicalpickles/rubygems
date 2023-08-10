@@ -1,3 +1,83 @@
+# 3.4.18 / 2023-08-02
+
+## Enhancements:
+
+* Add poller to fetch WebAuthn OTP. Pull request
+  [#6774](https://github.com/rubygems/rubygems/pull/6774) by jenshenny
+* Remove side effects when unmarshaling old `Gem::Specification`. Pull
+  request [#6825](https://github.com/rubygems/rubygems/pull/6825) by nobu
+* Ship rubygems executables in `exe` folder. Pull request
+  [#6704](https://github.com/rubygems/rubygems/pull/6704) by hsbt
+* Installs bundler 2.4.18 as a default gem.
+
+# 3.4.17 / 2023-07-14
+
+## Enhancements:
+
+* Installs bundler 2.4.17 as a default gem.
+
+## Performance:
+
+* Avoid unnecessary work for private local gem installation. Pull request
+  [#6810](https://github.com/rubygems/rubygems/pull/6810) by
+  deivid-rodriguez
+
+# 3.4.16 / 2023-07-10
+
+## Enhancements:
+
+* Installs bundler 2.4.16 as a default gem.
+
+# 3.4.15 / 2023-06-29
+
+## Enhancements:
+
+* Installs bundler 2.4.15 as a default gem.
+
+## Bug fixes:
+
+* Autoload shellwords when it's needed. Pull request
+  [#6734](https://github.com/rubygems/rubygems/pull/6734) by ioquatix
+
+## Documentation:
+
+* Update command to test local gem command changes. Pull request
+  [#6761](https://github.com/rubygems/rubygems/pull/6761) by jenshenny
+
+# 3.4.14 / 2023-06-12
+
+## Enhancements:
+
+* Load plugin immediately. Pull request
+  [#6673](https://github.com/rubygems/rubygems/pull/6673) by kou
+* Installs bundler 2.4.14 as a default gem.
+
+## Documentation:
+
+* Clarify what the `rubygems-update` gem is for, and link to source code
+  and guides. Pull request
+  [#6710](https://github.com/rubygems/rubygems/pull/6710) by davetron5000
+
+# 3.4.13 / 2023-05-09
+
+## Enhancements:
+
+* Installs bundler 2.4.13 as a default gem.
+
+# 3.4.12 / 2023-04-11
+
+## Enhancements:
+
+* [Experimental] Add WebAuthn Support to the CLI. Pull request
+  [#6560](https://github.com/rubygems/rubygems/pull/6560) by jenshenny
+* Installs bundler 2.4.12 as a default gem.
+
+# 3.4.11 / 2023-04-10
+
+## Enhancements:
+
+* Installs bundler 2.4.11 as a default gem.
+
 # 3.4.10 / 2023-03-27
 
 ## Enhancements:
@@ -666,7 +746,7 @@
 
 ## Enhancements:
 
-* Redact credentails when printing URI. Pull request [#4868](https://github.com/rubygems/rubygems/pull/4868) by intuxicated
+* Redact credentials when printing URI. Pull request [#4868](https://github.com/rubygems/rubygems/pull/4868) by intuxicated
 * Prefer `require_relative` to `require` for internal requires. Pull
   request [#4858](https://github.com/rubygems/rubygems/pull/4858) by deivid-rodriguez
 * Prioritise gems with higher version for fetching metadata, and stop

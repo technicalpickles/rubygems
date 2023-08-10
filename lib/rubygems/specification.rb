@@ -1301,6 +1301,8 @@ class Gem::Specification < Gem::BasicSpecification
   def self._load(str)
     Gem.load_yaml
 
+    yaml_set = false
+
     array = begin
       Marshal.load str
     rescue ArgumentError => e
@@ -1313,7 +1315,10 @@ class Gem::Specification < Gem::BasicSpecification
       message = e.message
       raise unless message.include?("YAML::")
 
-      Object.const_set "YAML", Psych unless Object.const_defined?(:YAML)
+      unless Object.const_defined?(:YAML)
+        Object.const_set "YAML", Psych
+        yaml_set = true
+      end
 
       if message.include?("YAML::Syck::")
         YAML.const_set "Syck", YAML unless YAML.const_defined?(:Syck)
@@ -1324,6 +1329,8 @@ class Gem::Specification < Gem::BasicSpecification
       end
 
       retry
+    ensure
+      Object.__send__(:remove_const, "YAML") if yaml_set
     end
 
     spec = Gem::Specification.new
@@ -1692,7 +1699,7 @@ class Gem::Specification < Gem::BasicSpecification
 
   def conficts_when_loaded_with?(list_of_specs) # :nodoc:
     result = list_of_specs.any? do |spec|
-      spec.dependencies.any? {|dep| dep.runtime? && (dep.name == name) && !satisfies_requirement?(dep) }
+      spec.runtime_dependencies.any? {|dep| (dep.name == name) && !satisfies_requirement?(dep) }
     end
     result
   end
@@ -1702,13 +1709,9 @@ class Gem::Specification < Gem::BasicSpecification
 
   def has_conflicts?
     return true unless Gem.env_requirement(name).satisfied_by?(version)
-    dependencies.any? do |dep|
-      if dep.runtime?
-        spec = Gem.loaded_specs[dep.name]
-        spec && !spec.satisfies_requirement?(dep)
-      else
-        false
-      end
+    runtime_dependencies.any? do |dep|
+      spec = Gem.loaded_specs[dep.name]
+      spec && !spec.satisfies_requirement?(dep)
     end
   rescue ArgumentError => e
     raise e, "#{name} #{version}: #{e.message}"
@@ -2595,8 +2598,7 @@ class Gem::Specification < Gem::BasicSpecification
   def traverse(trail = [], visited = {}, &block)
     trail.push(self)
     begin
-      dependencies.each do |dep|
-        next unless dep.runtime?
+      runtime_dependencies.each do |dep|
         dep.matching_specs(true).each do |dep_spec|
           next if visited.key?(dep_spec)
           visited[dep_spec] = true

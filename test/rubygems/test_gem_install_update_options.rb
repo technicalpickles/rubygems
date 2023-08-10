@@ -137,7 +137,7 @@ class TestGemInstallUpdateOptions < Gem::InstallerTestCase
     util_build_gem @spec
     @gem = @spec.cache_file
 
-    if win_platform?
+    if Gem.win_platform?
       pend("test_user_install_disabled_read_only test skipped on MS Windows")
     elsif Process.uid.zero?
       pend("test_user_install_disabled_read_only test skipped in root privilege")
@@ -146,8 +146,8 @@ class TestGemInstallUpdateOptions < Gem::InstallerTestCase
 
       refute @cmd.options[:user_install]
 
-      FileUtils.chmod 0755, @userhome
-      FileUtils.chmod 0000, @gemhome
+      FileUtils.chmod 0o755, @userhome
+      FileUtils.chmod 0o000, @gemhome
 
       Gem.use_paths @gemhome, @userhome
 
@@ -156,7 +156,7 @@ class TestGemInstallUpdateOptions < Gem::InstallerTestCase
       end
     end
   ensure
-    FileUtils.chmod 0755, @gemhome
+    FileUtils.chmod 0o755, @gemhome
   end
 
   def test_vendor

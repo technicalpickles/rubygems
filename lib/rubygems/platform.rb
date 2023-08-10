@@ -14,12 +14,17 @@ class Gem::Platform
 
   def self.local
     arch = RbConfig::CONFIG["arch"]
-    arch = "#{arch}_60" if arch =~ /mswin(?:32|64)$/
+    arch = "#{arch}_60" if /mswin(?:32|64)$/.match?(arch)
     @local ||= new(arch)
   end
 
   def self.match(platform)
     match_platforms?(platform, Gem.platforms)
+  end
+
+  class << self
+    extend Gem::Deprecate
+    rubygems_deprecate :match, "Gem::Platform.match_spec? or match_gem?"
   end
 
   def self.match_platforms?(platform, platforms)
