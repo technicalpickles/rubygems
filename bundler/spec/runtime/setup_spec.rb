@@ -1593,5 +1593,4 @@ end
     expect(err).to be_empty
     expect(out).to include("Installing rack 1.0.0")
   end
-
 end
