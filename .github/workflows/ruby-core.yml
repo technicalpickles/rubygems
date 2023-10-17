@@ -2,7 +2,10 @@ name: ruby-core
 
 on:
   pull_request:
-  merge_group:
+
+  push:
+    branches:
+      - master
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.workflow }}
@@ -21,13 +24,13 @@ jobs:
         target: [Rubygems, Bundler]
     steps:
       - name: Set up latest ruby head
-        uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # v1.152.0
+        uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4 # v1.156.0
         with:
           ruby-version: head
           bundler: none
       - name: Save latest buildable revision to environment
         run: echo "REF=$(ruby -v | cut -d')' -f1 | cut -d' ' -f5)" >> $GITHUB_ENV
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           repository: ruby/ruby
           path: ruby/ruby
@@ -46,7 +49,7 @@ jobs:
           ./configure -C --disable-install-doc
           make -j2
         working-directory: ruby/ruby
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           path: rubygems/rubygems
       - name: Sync tools

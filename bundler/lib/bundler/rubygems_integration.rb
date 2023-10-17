@@ -243,21 +243,11 @@ module Bundler
 
       [::Kernel.singleton_class, ::Kernel].each do |kernel_class|
         kernel_class.send(:alias_method, :no_warning_require, :require)
-        kernel_class.send(:define_method, :require) do |file|
-          file = File.path(file)
-          name = file.tr("/", "-")
-          if (::Gem::BUNDLED_GEMS::SINCE.keys - specs.to_a.map(&:name)).include?(name)
-            unless $LOADED_FEATURES.any? {|f| f.end_with?("#{name}.rb", "#{name}.#{RbConfig::CONFIG["DLEXT"]}") }
-              target_file = begin
-                              Bundler.default_gemfile.basename
-                            rescue GemfileNotFound
-                              "inline Gemfile"
-                            end
-              warn "#{name} is not part of the default gems since Ruby #{::Gem::BUNDLED_GEMS::SINCE[file]}." \
-              " Add it to your #{target_file}."
-            end
+        kernel_class.send(:define_method, :require) do |name|
+          if message = ::Gem::BUNDLED_GEMS.warning?(name)
+            warn message, :uplevel => 1
           end
-          kernel_class.send(:no_warning_require, file)
+          kernel_class.send(:no_warning_require, name)
         end
         if kernel_class == ::Kernel
           kernel_class.send(:private, :require)
@@ -483,7 +473,9 @@ module Bundler
       fetcher = gem_remote_fetcher
       fetcher.headers = { "X-Gemfile-Source" => remote.original_uri.to_s } if remote.original_uri
       string = fetcher.fetch_path(path)
-      Bundler.safe_load_marshal(string)
+      specs = Bundler.safe_load_marshal(string)
+      raise MarshalError, "Specs #{name} from #{remote} is expected to be an Array but was unexpected class #{specs.class}" unless specs.is_a?(Array)
+      specs
     rescue Gem::RemoteFetcher::FetchError
       # it's okay for prerelease to fail
       raise unless name == "prerelease_specs"

@@ -86,7 +86,7 @@ end
 
 task :default => [:test, :spec]
 
-spec = Gem::Specification.load("rubygems-update.gemspec")
+spec = Gem::Specification.load(File.expand_path("rubygems-update.gemspec", __dir__))
 v = spec.version
 
 require "rdoc/task"
@@ -547,9 +547,23 @@ task :check_manifest do
   end
 end
 
+license_last_update = nil
+
 desc "Update License list from SPDX.org"
 task :update_licenses do
   load "tool/generate_spdx_license_list.rb"
+  license_last_update = generate_spdx_license_list
+end
+
+desc "Create branch to update License list"
+task :update_licenses_branch => :update_licenses do
+  if license_last_update
+    file, mtime = license_last_update
+    date = mtime.strftime("%Y-%m-%d")
+    branch_name = "license-list-#{date}"
+    system(*%w[git checkout -b], branch_name, exception: true)
+    system(*%w[git commit -m], "Update SPDX license list as of #{date}", *file, exception: true)
+  end
 end
 
 require_relative "bundler/spec/support/rubygems_ext"
@@ -694,7 +708,7 @@ namespace :man do
     task :check => [:check_ronn, :set_current_date, :build] do
       Spec::Rubygems.check_source_control_changes(
         :success_message => "Man pages are in sync",
-        :error_message => "Man pages are out of sync. Above you can see the list of files that got modified or generated from rebuilding them. Please review and commit the results."
+        :error_message => "Man pages are out of sync. Please run `rake man:build` and commit the results."
       )
     end
   end
@@ -706,7 +720,7 @@ task :override_version do
 end
 
 namespace :bundler do
-  chdir("bundler") do
+  chdir(File.expand_path("bundler", __dir__)) do
     require_relative "bundler/lib/bundler/gem_tasks"
   end
   require_relative "bundler/spec/support/build_metadata"
