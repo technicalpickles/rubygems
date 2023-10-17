@@ -33,7 +33,7 @@ jobs:
           - { name: "openssl", value: true }
           - { name: "no-openssl", value: false }
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Setup ruby
         uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4 # v1.156.0
         with:
@@ -101,7 +101,7 @@ jobs:
           - { name: "3.2", value: 3.2.2 } # Rails 7
           - { name: jruby-9.4, value: jruby-9.4.2.0, rails-args: "--skip-webpack-install" } # Rails 6
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Setup ruby
         uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4 # v1.156.0
         with:
