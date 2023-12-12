@@ -8,7 +8,7 @@ if Bundler::SharedHelpers.in_bundle?
   # this happens in Bundler.setup too, but we call it here early
   # so it can happen without being Bundler.ui.silence'd
   if Bundler.settings[:auto_install]
-    Bundler.install
+    Bundler.auto_install
   end
 
   if STDOUT.tty? || ENV["BUNDLER_FORCE_TTY"]

@@ -156,7 +156,7 @@ module Bundler
       return @setup if defined?(@setup) && @setup
 
       if settings[:auto_install]
-        install
+        auto_install
       end
 
       definition.validate_runtime!
@@ -171,19 +171,19 @@ module Bundler
       end
     end
 
-    def install
-      Bundler.definition.specs
+    def auto_install
+      definition.specs
     rescue GemNotFound, GitError
-      Bundler.ui.info "Automatically installing missing gems."
-      Bundler.reset!
+      ui.info "Automatically installing missing gems."
+      reset!
 
-      Bundler.settings.temporary(no_install: false) do
-        Plugin.gemfile_install(Bundler.default_gemfile) if Bundler.feature_flag.plugins?
+      settings.temporary(no_install: false) do
+        Plugin.gemfile_install(default_gemfile) if Bundler.feature_flag.plugins?
 
-        definition = Bundler.definition
+        definition = self.definition
         definition.validate_runtime!
 
-        Installer.install(Bundler.root, definition, {})
+        Installer.install(root, definition, {})
       end
     end
 
