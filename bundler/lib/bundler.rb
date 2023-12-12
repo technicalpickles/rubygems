@@ -177,7 +177,7 @@ module Bundler
       Bundler.ui.info "Automatically installing missing gems."
       Bundler.reset!
 
-      Bundler.settings.temporary(:no_install => false) do
+      Bundler.settings.temporary:no_install: false) do
         Plugin.gemfile_install(Bundler.default_gemfile) if Bundler.feature_flag.plugins?
 
         definition = Bundler.definition
