@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "real world edgecases", :realworld => true do
+RSpec.describe "real world edgecases", realworld: true do
   def rubygems_version(name, requirement)
     ruby <<-RUBY
       require "#{spec_dir}/support/artifice/vcr"
@@ -8,9 +8,10 @@ RSpec.describe "real world edgecases", :realworld => true do
       require "bundler/source/rubygems/remote"
       require "bundler/fetcher"
       rubygem = Bundler.ui.silence do
-        source = Bundler::Source::Rubygems::Remote.new(Bundler::URI("https://rubygems.org"))
-        fetcher = Bundler::Fetcher.new(source)
-        index = fetcher.specs([#{name.dump}], nil)
+        remote = Bundler::Source::Rubygems::Remote.new(Bundler::URI("https://rubygems.org"))
+        source = Bundler::Source::Rubygems.new
+        fetcher = Bundler::Fetcher.new(remote)
+        index = fetcher.specs([#{name.dump}], source)
         requirement = Gem::Requirement.create(#{requirement.dump})
         index.search(#{name.dump}).select {|spec| requirement.satisfied_by?(spec.version) }.last
       end
@@ -192,13 +193,13 @@ RSpec.describe "real world edgecases", :realworld => true do
         rails (~> 4.2.7.1)
     L
 
-    bundle "lock --update paperclip", :env => { "BUNDLER_VERSION" => "1.99.0" }
+    bundle "lock --update paperclip", env: { "BUNDLER_VERSION" => "1.99.0" }
 
     expect(lockfile).to include(rubygems_version("paperclip", "~> 5.1.0"))
   end
 
-  it "outputs a helpful error message when gems have invalid gemspecs", :rubygems => "< 3.3.16" do
-    install_gemfile <<-G, :standalone => true, :raise_on_error => false, :env => { "BUNDLE_FORCE_RUBY_PLATFORM" => "1" }
+  it "outputs a helpful error message when gems have invalid gemspecs", rubygems: "< 3.3.16" do
+    install_gemfile <<-G, standalone: true, raise_on_error: false, env: { "BUNDLE_FORCE_RUBY_PLATFORM" => "1" }
       source 'https://rubygems.org'
       gem "resque-scheduler", "2.2.0"
       gem "redis-namespace", "1.6.0" # for a consistent resolution including ruby 2.3.0
@@ -208,8 +209,8 @@ RSpec.describe "real world edgecases", :realworld => true do
     expect(err).to include("resque-scheduler 2.2.0 has an invalid gemspec")
   end
 
-  it "outputs a helpful warning when gems have a gemspec with invalid `require_paths`", :rubygems => ">= 3.3.16" do
-    install_gemfile <<-G, :standalone => true, :env => { "BUNDLE_FORCE_RUBY_PLATFORM" => "1" }
+  it "outputs a helpful warning when gems have a gemspec with invalid `require_paths`", rubygems: ">= 3.3.16" do
+    install_gemfile <<-G, standalone: true, env: { "BUNDLE_FORCE_RUBY_PLATFORM" => "1" }
       source 'https://rubygems.org'
       gem "resque-scheduler", "2.2.0"
       gem "redis-namespace", "1.6.0" # for a consistent resolution including ruby 2.3.0
@@ -322,10 +323,10 @@ RSpec.describe "real world edgecases", :realworld => true do
 
     if Bundler.feature_flag.bundler_3_mode?
       # Conflicts on bundler version, so we count attempts differently
-      bundle :lock, :env => { "DEBUG_RESOLVER" => "1" }, :raise_on_error => false
+      bundle :lock, env: { "DEBUG_RESOLVER" => "1" }, raise_on_error: false
       expect(out.split("\n").grep(/backtracking to/).count).to eq(8)
     else
-      bundle :lock, :env => { "DEBUG_RESOLVER" => "1" }
+      bundle :lock, env: { "DEBUG_RESOLVER" => "1" }
       expect(out).to include("Solution found after 7 attempts")
     end
   end
@@ -347,7 +348,7 @@ RSpec.describe "real world edgecases", :realworld => true do
       end
     G
 
-    bundle :lock, :env => { "DEBUG_RESOLVER" => "1" }
+    bundle :lock, env: { "DEBUG_RESOLVER" => "1" }
 
     expect(out).to include("Solution found after 6 attempts")
   end
@@ -509,7 +510,7 @@ RSpec.describe "real world edgecases", :realworld => true do
       gem "zookeeper"
     G
 
-    bundle :lock, :env => { "DEBUG_RESOLVER" => "1" }
+    bundle :lock, env: { "DEBUG_RESOLVER" => "1" }
 
     expect(out).to include("Solution found after 4 attempts")
   end

@@ -17,7 +17,7 @@ require_relative "bundler/build_metadata"
 # Bundler provides a consistent environment for Ruby projects by
 # tracking and installing the exact gems and versions that are needed.
 #
-# Since Ruby 2.6, Bundler is a part of Ruby's standard library.
+# Bundler is a part of Ruby's standard library.
 #
 # Bundler is used by creating _gemfiles_ listing all the project dependencies
 # and (optionally) their versions and then using
@@ -39,6 +39,8 @@ module Bundler
   environment_preserver.replace_with_backup
   SUDO_MUTEX = Thread::Mutex.new
 
+  autoload :Checksum,               File.expand_path("bundler/checksum", __dir__)
+  autoload :CIDetector,             File.expand_path("bundler/ci_detector", __dir__)
   autoload :Definition,             File.expand_path("bundler/definition", __dir__)
   autoload :Dependency,             File.expand_path("bundler/dependency", __dir__)
   autoload :Deprecate,              File.expand_path("bundler/deprecate", __dir__)
@@ -171,7 +173,7 @@ module Bundler
 
     def install
       Bundler.definition.specs
-    rescue GemNotFound
+    rescue GemNotFound, GitError
       Bundler.ui.info "Automatically installing missing gems."
       Bundler.reset!
 
@@ -212,7 +214,7 @@ module Bundler
     end
 
     def environment
-      SharedHelpers.major_deprecation 2, "Bundler.environment has been removed in favor of Bundler.load", :print_caller_location => true
+      SharedHelpers.major_deprecation 2, "Bundler.environment has been removed in favor of Bundler.load", print_caller_location: true
       load
     end
 
@@ -350,14 +352,6 @@ module Bundler
 
     def rm_rf(path)
       FileUtils.remove_entry_secure(path) if path && File.exist?(path)
-    rescue ArgumentError
-      message = <<EOF
-It is a security vulnerability to allow your home directory to be world-writable, and bundler cannot continue.
-You should probably consider fixing this issue by running `chmod o-w ~` on *nix.
-Please refer to https://ruby-doc.org/stdlib-3.1.2/libdoc/fileutils/rdoc/FileUtils.html#method-c-remove_entry_secure for details.
-EOF
-      File.world_writable?(path) ? Bundler.ui.warn(message) : raise
-      raise PathError, "Please fix the world-writable issue with your #{path} directory"
     end
 
     def settings
@@ -373,13 +367,13 @@ EOF
 
     # @deprecated Use `unbundled_env` instead
     def clean_env
-      Bundler::SharedHelpers.major_deprecation(
-        2,
+      message =
         "`Bundler.clean_env` has been deprecated in favor of `Bundler.unbundled_env`. " \
-        "If you instead want the environment before bundler was originally loaded, use `Bundler.original_env`",
-        :print_caller_location => true
-      )
-
+        "If you instead want the environment before bundler was originally loaded, use `Bundler.original_env`"
+      removed_message =
+        "`Bundler.clean_env` has been removed in favor of `Bundler.unbundled_env`. " \
+        "If you instead want the environment before bundler was originally loaded, use `Bundler.original_env`"
+      Bundler::SharedHelpers.major_deprecation(2, message, removed_message: removed_message, print_caller_location: true)
       unbundled_env
     end
 
@@ -416,13 +410,13 @@ EOF
 
     # @deprecated Use `with_unbundled_env` instead
     def with_clean_env
-      Bundler::SharedHelpers.major_deprecation(
-        2,
+      message =
         "`Bundler.with_clean_env` has been deprecated in favor of `Bundler.with_unbundled_env`. " \
-        "If you instead want the environment before bundler was originally loaded, use `Bundler.with_original_env`",
-        :print_caller_location => true
-      )
-
+        "If you instead want the environment before bundler was originally loaded, use `Bundler.with_original_env`"
+      removed_message =
+        "`Bundler.with_clean_env` has been removed in favor of `Bundler.with_unbundled_env`. " \
+        "If you instead want the environment before bundler was originally loaded, use `Bundler.with_original_env`"
+      Bundler::SharedHelpers.major_deprecation(2, message, removed_message: removed_message, print_caller_location: true)
       with_env(unbundled_env) { yield }
     end
 
@@ -438,13 +432,13 @@ EOF
 
     # @deprecated Use `unbundled_system` instead
     def clean_system(*args)
-      Bundler::SharedHelpers.major_deprecation(
-        2,
+      message =
         "`Bundler.clean_system` has been deprecated in favor of `Bundler.unbundled_system`. " \
-        "If you instead want to run the command in the environment before bundler was originally loaded, use `Bundler.original_system`",
-        :print_caller_location => true
-      )
-
+        "If you instead want to run the command in the environment before bundler was originally loaded, use `Bundler.original_system`"
+      removed_message =
+        "`Bundler.clean_system` has been removed in favor of `Bundler.unbundled_system`. " \
+        "If you instead want to run the command in the environment before bundler was originally loaded, use `Bundler.original_system`"
+      Bundler::SharedHelpers.major_deprecation(2, message, removed_message: removed_message, print_caller_location: true)
       with_env(unbundled_env) { Kernel.system(*args) }
     end
 
@@ -460,13 +454,13 @@ EOF
 
     # @deprecated Use `unbundled_exec` instead
     def clean_exec(*args)
-      Bundler::SharedHelpers.major_deprecation(
-        2,
+      message =
         "`Bundler.clean_exec` has been deprecated in favor of `Bundler.unbundled_exec`. " \
-        "If you instead want to exec to a command in the environment before bundler was originally loaded, use `Bundler.original_exec`",
-        :print_caller_location => true
-      )
-
+        "If you instead want to exec to a command in the environment before bundler was originally loaded, use `Bundler.original_exec`"
+      removed_message =
+        "`Bundler.clean_exec` has been removed in favor of `Bundler.unbundled_exec`. " \
+        "If you instead want to exec to a command in the environment before bundler was originally loaded, use `Bundler.original_exec`"
+      Bundler::SharedHelpers.major_deprecation(2, message, removed_message: removed_message, print_caller_location: true)
       with_env(unbundled_env) { Kernel.exec(*args) }
     end
 
@@ -543,7 +537,7 @@ EOF
           raise MarshalError, "#{e.class}: #{e.message}"
         end
       else
-        load_marshal(data, :marshal_proc => SafeMarshal.proc)
+        load_marshal(data, marshal_proc: SafeMarshal.proc)
       end
     end
 

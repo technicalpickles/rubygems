@@ -30,19 +30,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { bundler: { name: 2, value: '' }, ruby: { name: ruby-2.6, value: 2.6.10 } }
-          - { bundler: { name: 2, value: '' }, ruby: { name: ruby-2.7, value: 2.7.8 } }
           - { bundler: { name: 2, value: '' }, ruby: { name: ruby-3.0, value: 3.0.6 } }
           - { bundler: { name: 2, value: '' }, ruby: { name: ruby-3.1, value: 3.1.4 } }
           - { bundler: { name: 2, value: '' }, ruby: { name: ruby-3.2, value: 3.2.2 } }
-          - { bundler: { name: 3, value: 3.0.0 }, ruby: { name: ruby-2.7, value: 2.7.8 } }
+          - { bundler: { name: 2, value: '' }, ruby: { name: ruby-3.3, value: 3.3.0-rc1 } }
           - { bundler: { name: 3, value: 3.0.0 }, ruby: { name: ruby-3.0, value: 3.0.6 } }
           - { bundler: { name: 3, value: 3.0.0 }, ruby: { name: ruby-3.1, value: 3.1.4 } }
           - { bundler: { name: 3, value: 3.0.0 }, ruby: { name: ruby-3.2, value: 3.2.2 } }
+          - { bundler: { name: 3, value: 3.0.0 }, ruby: { name: ruby-3.3, value: 3.3.0-rc1 } }
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Setup ruby
-        uses: ruby/setup-ruby@5cfe23c062c0aac352e765b1b7cc12ea5255ccc4 # v1.156.0
+        uses: ruby/setup-ruby@af848b40be8bb463a751551a1180d74782ba8a72 # v1.162.0
         with:
           ruby-version: ${{ matrix.ruby.value }}
           bundler: none
@@ -63,12 +62,14 @@ jobs:
         run: |
           RGV=$(ruby -e 'puts Gem::VERSION.split(".")[0..2].join(".")')
           echo "RGV=v$RGV" >> $GITHUB_ENV
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           path: bundler/tmp/rubygems
           ref: ${{ env.RGV }}
+        if: matrix.ruby.name != 'ruby-3.3'
       - name: Run Rubygems Requirement tests against local bundler, to make sure bundler monkeypatches preserve the behaviour
         run: |
           ruby -I../../lib:lib:test test/rubygems/test_gem_requirement.rb
         working-directory: ./bundler/tmp/rubygems
+        if: matrix.ruby.name != 'ruby-3.3'
     timeout-minutes: 60

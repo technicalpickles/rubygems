@@ -15,8 +15,8 @@ class Gem::Commands::UninstallCommand < Gem::Command
 
   def initialize
     super "uninstall", "Uninstall gems from the local repository",
-          :version => Gem::Requirement.default, :user_install => true,
-          :check_dev => false, :vendor => false
+          version: Gem::Requirement.default, user_install: true,
+          check_dev: false, vendor: false
 
     add_option("-a", "--[no-]all",
       "Uninstall all matching versions") do |value, options|
@@ -168,10 +168,10 @@ that is a dependency of an existing gem.  You can use the
     gems_to_uninstall = {}
 
     deps.each do |dep|
-      next if gems_to_uninstall[dep.name]
-      gems_to_uninstall[dep.name] = true
-
-      unless original_gem_version[dep.name] == Gem::Requirement.default
+      if original_gem_version[dep.name] == Gem::Requirement.default
+        next if gems_to_uninstall[dep.name]
+        gems_to_uninstall[dep.name] = true
+      else
         options[:version] = dep.version
       end
 
