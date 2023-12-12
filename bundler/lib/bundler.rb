@@ -178,7 +178,7 @@ module Bundler
       reset!
 
       settings.temporary(no_install: false) do
-        Plugin.gemfile_install(default_gemfile) if Bundler.feature_flag.plugins?
+        Plugin.gemfile_install(default_gemfile) if feature_flag.plugins?
 
         definition = self.definition
         definition.validate_runtime!
