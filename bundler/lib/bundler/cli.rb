@@ -736,9 +736,8 @@ module Bundler
 
     private
 
-    # Automatically invoke `bundle install` and resume if
-    # Bundler.settings[:auto_install] exists. This is set through config cmd
-    # `bundle config set --global auto_install 1`.
+    # Automatically install dependencies if Bundler.settings[:auto_install] exists.
+    # This is set through config cmd `bundle config set --global auto_install 1`.
     #
     # Note that this method `nil`s out the global Definition object, so it
     # should be called first, before you instantiate anything like an
@@ -746,7 +745,7 @@ module Bundler
     def auto_install
       return unless Bundler.settings[:auto_install]
 
-      Bundler.install
+      Bundler.auto_install
     end
 
     def current_command
