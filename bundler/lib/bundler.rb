@@ -167,6 +167,9 @@ module Bundler
       end
     end
 
+    # Automatically installs missing gems from Gemfile.
+    #
+    # To setup the Bundler runtime, see +Bundler.setup+.
     def auto_install
       definition.specs
     rescue GemNotFound, GitError
